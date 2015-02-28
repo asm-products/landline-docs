@@ -1,0 +1,20 @@
+---
+layout: default
+---
+
+<header class="bg-landline-grey px2 py4 center avenir white">
+  <img src="https://d1015h9unskp4y.cloudfront.net/attachments/5b20eee0-ac0b-4cb1-b2c2-a92dcbad9fb8/Landline_Project%20Icon.png" class="mx-auto" style="max-width: 7rem" />
+  <h1 class="h0 h0-responsive avenir mt0">{{ site.title }}</h1>
+</header>
+
+<article class="sm-col-11 md-col-8 mx-auto py2">
+
+  <h1 class="avenir caps landline-grey">Articles</h1>
+
+  {% for page in site.pages %}
+    <h2 class="mt0">
+      <a href="{{ page.url }}" class="landline-teal avenir">{{ page.title }}</a>
+    </h2>
+  {% endfor %}
+
+</article>
