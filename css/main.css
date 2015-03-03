@@ -1,0 +1,32 @@
+body,
+.avenir {
+  font-family: "Avenir Next", Avenir, "Helvetica Neue", sans-serif;
+}
+
+.landline-grey {
+  color: #454A52;
+}
+.bg-landline-grey {
+  background-color: #454A52;
+}
+
+.landline-teal {
+  color: #14A2B7;
+}
+.bg-landline-teal {
+  background-color: #14A2B7;
+}
+
+.landline-red {
+  color: #F15745;
+}
+.bg-landline-red {
+  background-color: #F15745;
+}
+
+.landline-yellow {
+  color: #FACB34;
+}
+.bg-landline-yellow {
+  background-color: #FACB34;
+}
