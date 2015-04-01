@@ -19,4 +19,4 @@ title:  "1. Get started"
 
     Note the **shared secret** field: Landline generated this for you automatically, and you can feel free to use it or change it. Whatever you do, make sure you keep it safe. If it ends up, for example, getting committed to a public repository, you should change it right away (and then update your `.gitignore`, [ya dingus](https://www.youtube.com/watch?v=9mpU1uFrvgQ&t=0m4s)).
 
-3. [Set up SSO on your server](2-set-up-sso.html).
+3. [Set up SSO on your server]({{ site.baseurl }}/2-set-up-sso.html).

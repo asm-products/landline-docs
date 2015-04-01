@@ -24,4 +24,4 @@ You're almost ready to chat. This is the trickiest part, but then you'll be home
 
     Using something other than Rails? We're working on more examples, and we'd love [pull requests](https://github.com/asm-products/landline-docs).
 
-3. What are you waiting for? [Set up your chat client](3-set-up-chat-client.html)!
+3. What are you waiting for? [Set up your chat client]({{ site.baseurl }}/3-set-up-chat-client.html)!
