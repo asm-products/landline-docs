@@ -7,4 +7,4 @@ baseurl: "/"
 url: "http://docs.landline.io"
 
 # Build settings
-markdown: kramdown
+markdown: redcarpet
