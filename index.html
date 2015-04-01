@@ -8,7 +8,7 @@ layout: default
 
   {% for page in site.pages %}
     <h2 class="mt0">
-      <a href="{{ page.url }}" class="landline-teal avenir">{{ page.title }}</a>
+      <a href="{{ site.baseurl }}{{ page.url }}" class="landline-teal avenir">{{ page.title }}</a>
     </h2>
   {% endfor %}
 
