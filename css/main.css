@@ -3,9 +3,14 @@ body,
   font-family: "Avenir Next", Avenir, "Helvetica Neue", sans-serif;
 }
 
+a {
+  color: #14A2B7;
+}
+
 .landline-grey {
   color: #454A52;
 }
+
 .bg-landline-grey {
   background-color: #454A52;
 }
