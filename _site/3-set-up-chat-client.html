@@ -22,7 +22,24 @@
     <article class="sm-col-9 mx-auto p2">
   <h1 class="landline-grey avenir h0 h0-responsive center">3. Set up your chat client</h1>
   <div class="h3">
-    
+    <p>Now that you&#39;ve <a href="/landline-docs//1-get-started.html">created an account</a> and <a href="/landline-docs//2-set-up-sso.html">set up your SSO endpoint</a>, you&#39;re ready to chat.</p>
+
+<ol>
+<li><p>Simply include the following <code>&lt;iframe&gt;</code> where you&#39;d like your chat to appear (the example below uses <a href="http://ruby-doc.org/stdlib-2.2.1/libdoc/erb/rdoc/ERB.html">ERB</a>; examples in other templating languages are coming soon):</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">&lt;!-- Minimally, you&#39;ll need to tell Landline your team name. --&gt;
+&lt;!-- It&#39;s recommended that you also tell Landline which room --&gt;
+&lt;!-- you&#39;d like your users to start in (every team gets a    --&gt;
+&lt;!-- &quot;general&quot; room for free; other rooms can be created if  --&gt;
+&lt;!-- needed). --&gt;
+
+&lt;iframe width=&quot;100%&quot;
+        height=&quot;100%&quot;
+        src=&quot;&lt;%= ENV[&#39;LANDLINE_HOST&#39;] %&gt;/chat?team=your_team_team&amp;room=&lt;%= your_chat_room_name %&gt;
+        style=&quot;border: none;&quot;&gt;
+&lt;/iframe&gt;
+</code></pre></div></li>
+</ol>
+
   </div>
 </article>
 
