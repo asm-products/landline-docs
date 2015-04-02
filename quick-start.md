@@ -42,7 +42,7 @@ You're almost ready to chat. This is the trickiest part, but then you'll be home
 
 - Set up your controller.
 
-    Here's an [example controller](examples/single_sign_on_controller.rb), which you're free to use &mdash; you'll just need to be sure to serialize `current_user` correctly after the redirects. (At Assembly, we pass around a unique token; Landline will wrap up any query params and send them back to your server securely in the redirect (you *are* using SSL, right?), so you can stash whatever you want up there.)
+    Here's an [example controller](https://github.com/asm-products/landline-docs/blob/gh-pages/examples/single_sign_on_controller.rb), which you're free to use &mdash; you'll just need to be sure to serialize `current_user` correctly after the redirects. (At Assembly, we pass around a unique token; Landline will wrap up any query params and send them back to your server securely in the redirect (you *are* using SSL, right?), so you can stash whatever you want up there.)
 
     Using something other than Rails? We're working on more examples, and we'd love [pull requests](https://github.com/asm-products/landline-docs).
 
