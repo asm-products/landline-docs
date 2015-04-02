@@ -5,13 +5,13 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Chat</title>
+  <title>Webhooks</title>
   <meta name="description" content="All the documentation for getting set up with Landline.io
 ">
 
   <link href="http://d2v52k3cl9vedd.cloudfront.net/basscss/5.0.0/basscss.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/landline-docs/css/main.css">
-  <link rel="canonical" href="http://docs.landline.io/landline-docs/chat.html">
+  <link rel="canonical" href="http://docs.landline.io/landline-docs/webhooks.html">
 </head>
 
   <body>
@@ -80,35 +80,17 @@
 </div>
 
     <div class="sm-col sm-col-9 px2">
-      <h1 class="landline-grey avenir h0 h0-responsive center mt0">Chat</h1>
+      <h1 class="landline-grey avenir h0 h0-responsive center mt0">Webhooks</h1>
       <div class="h3">
-        <p><a name="mentions"></a></p>
+        <p>In your <a href="https://landline.io/settings">settings</a> (you&#39;ll need to be logged in), if you supply a <strong>webhook URL</strong>, Landline will <code>POST</code> every message it receives to that URL for further processing. This allows you to do custom things like email uses who are @-mentioned, analyze your chat inputs/frequency, etc.</p>
 
-<h3>Mentions</h3>
-
-<p>Landline supports <strong>@user</strong> mentions, which will be parsed as a link to the mentioned user&#39;s <code>profile_url</code>.</p>
-
-<p>You can also reference a <em>#room</em>, which will turn into a link to that chat room for your team.</p>
-
-<p><a name="emoji"></a></p>
-
-<h3>Emoji</h3>
-
-<p>Landline uses <a href="http://emojione.com/">Emoji One</a> client-side for all of your expressive messaging needs.</p>
-
-<p>Check out <a href="http://emoji.codes/">emoji.codes</a> for shortcuts, and feel free to <a href="https://github.com/asm-products/landline-web/pulls">submit a PR</a> for better shortcut support in Landline.</p>
-
-<p><a name="formatting"></a></p>
-
-<h3>Formatting</h3>
-
-<p>Landline supports a limited subset of <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a>-like formatting.</p>
-
-<ul>
-<li>*<strong>bold</strong>* text is surrounded by asterisks (*)</li>
-<li>_<em>italicized</em>_ text is surrounded by underscores (_)</li>
-<li><a href="#">https://links.com</a> will be formatted as long as they are preceded by <code>http[s]://</code>.</li>
-</ul>
+<p>The request data is a JSON payload that looks like</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="p">{</span>
+  <span class="s2">&quot;webhook_type&quot;</span><span class="o">:</span> <span class="s2">&quot;message&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;message&quot;</span><span class="o">:</span> <span class="p">[</span><span class="nx">some</span> <span class="nx">message</span> <span class="nx">here</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>We&#39;re working quickly to support a more flexible webhook implementation, and we&#39;d love to hear your ideas/needs or to review your <a href="https://github.com/asm-products/landline-api/pulls">pull requests</a>.</p>
 
       </div>
     </div>
