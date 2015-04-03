@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>API</title>
+  <meta name="description" content="All the documentation for getting set up with Landline.io
+">
+
+  <link href="favicon.ico" rel="shortcut icon" type="image/x-icon">
+  <link href="http://d2v52k3cl9vedd.cloudfront.net/basscss/5.0.0/basscss.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/landline-docs/css/main.css">
+  <link rel="canonical" href="http://docs.landline.io/landline-docs/api.html">
+</head>
+
+  <body>
+    <a href="/landline-docs/" class="p2 absolute">
+  <img src="https://d1015h9unskp4y.cloudfront.net/attachments/353037ca-3497-4abe-86ed-61b7843105e9/Landline_Icon_Colour.png" style="max-width: 36px" />
+</a>
+
+    <div class="container p4">
+  <div class="clearfix">
+    <div class="sm-col sm-col-3 sm-show">
+  <ul class="list-reset p2">
+    <li class="bold">
+      <a href="/landline-docs/quick-start.html">Quick Start</a>
+    </li>
+    <li>
+      <ul class="list-reset p1">
+        <li>
+          <a href="/landline-docs/quick-start.html#get-started">
+            Get started
+          </a>
+        </li>
+
+        <li>
+          <a href="/landline-docs/quick-start.html#set-up-sso">
+            Set up SSO
+          </a>
+        </li>
+
+        <li>
+          <a href="/landline-docs/quick-start.html#set-up-chat">
+            Set up chat
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <li class="bold">
+      <a href="/landline-docs/chat.html">Chat</a>
+    </li>
+    <li>
+      <ul class="list-reset p1">
+        <li>
+          <a href="/landline-docs/chat.html#mentions">
+            Mentions
+          </a>
+        </li>
+
+        <li>
+          <a href="/landline-docs/chat.html#emoji">
+            Emoji
+          </a>
+        </li>
+
+        <li>
+          <a href="/landline-docs/chat.html#formatting">
+            Formatting
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <li class="bold">
+      <a href="/landline-docs/webhooks.html">Webhooks</a>
+    </li>
+
+    <li class="bold">
+      <a href="/landline-docs/api.html">API</a>
+    </li>
+  </ul>
+</div>
+
+    <div class="sm-col sm-col-9 px2">
+      <h1 class="landline-grey avenir h0 h0-responsive center mt0">API</h1>
+      <div class="h3">
+        <p><a name="teams"></a></p>
+
+<h3>Teams</h3>
+
+<ul>
+<li><p>Create</p>
+
+<p>You can create an account directly on <a href="https://landline.io">landline.io</a>,
+or you can <code>POST</code> your details to the <code>/teams</code> endpoint:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">curl https://api.landline.io/teams \
+     -X POST \
+     -H &quot;content-type: application/json&quot; \
+     -H &quot;accept: application/json&quot; \
+     -d &#39;{ \
+        &quot;email&quot;: &quot;email@email.com&quot;, \
+        &quot;password&quot;: &quot;password&quot;, \
+        &quot;secret&quot;: &quot;single sign-on secret&quot;, \
+        &quot;url&quot;: &quot;single sign-on url&quot;, \
+        &quot;name&quot;: &quot;team name&quot;, \
+        &quot;webhook_url&quot;: &quot;optional url for receiving webhooks&quot; \
+      }&#39;
+</code></pre></div>
+<p>A successful response will be a JSON-encoded hash containing a <a href="http://jwt.io/">JSON Web Toke</a> and its expiration:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">HTTP/1.1 200
+Content-Type: application/json
+
+{ &quot;token&quot;: [your JWT], &quot;expiration&quot;: [your JWT&#39;s expiration in Unix time] }
+</code></pre></div></li>
+<li><p>Read</p>
+
+<p>You can then get information about your team by hitting its endpoint:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">curl https://api.landline.io/teams/:team_name \
+     -H &quot;accept: application/json&quot; \
+     -H &quot;authorization: [your JWT from above]&quot;
+</code></pre></div>
+<p>A successful response will be JSON-encoded hash containing everything but your password:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">HTTP/1.1 200
+Content-Type: application/json
+
+{
+    &quot;email&quot;:       &quot;email&quot;,
+    &quot;url&quot;:         &quot;url&quot;,
+    &quot;name&quot;:        &quot;name&quot;,
+    &quot;secret&quot;:      &quot;shared secret&quot;,
+    &quot;webhook_url&quot;: &quot;webhook url&quot;,
+}
+</code></pre></div></li>
+<li><p>Login</p>
+
+<p>If your JWT has expired, you can generate a new one by logging in:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">curl https://api.landline.io/teams/:team_name \
+     -X POST \
+     -H &quot;accept: application/json&quot; \
+     -H &quot;content-type: application/json&quot; \
+     -d &#39;{ &quot;password&quot;: [your password] }&#39;
+</code></pre></div>
+<p>A successful response will contain a new JWT, its expiration, and your team&#39;s name:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">HTTP/1.1 200
+Content-Type: application/json
+
+{
+  &quot;token&quot;:      [your JWT],
+  &quot;expiration&quot;: [your JWT&#39;s expiration in Unix time],
+  &quot;name&quot;:       [your team name]
+}
+</code></pre></div></li>
+</ul>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+    <footer class="p2 bg-white border-top bottom-0 full-width center">
+  <p class="mb0">
+    <a href="http://landline.io/" class="bold landline-teal">Landline</a>
+    is being built with <span class="landline-red">&#10084;</span> on
+    <a href="http://assembly.com/landline" class="bold landline-yellow">
+      Assembly
+    </a>
+  </p>
+</footer>
+
+  </body>
+</html>
