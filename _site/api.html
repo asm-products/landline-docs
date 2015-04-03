@@ -74,12 +74,21 @@
       </ul>
     </li>
 
-    <li class="bold">
+    <li class="bold mb2">
       <a href="/landline-docs/webhooks.html">Webhooks</a>
     </li>
 
     <li class="bold">
       <a href="/landline-docs/api.html">API</a>
+    </li>
+    <li>
+      <ul class="list-reset p1">
+        <li>
+          <a href="/landline-docs/api.html#teams">
+            Teams
+          </a>
+        </li>
+      </ul>
     </li>
   </ul>
 </div>
@@ -109,8 +118,8 @@ or you can <code>POST</code> your details to the <code>/teams</code> endpoint:</
         &quot;webhook_url&quot;: &quot;optional url for receiving webhooks&quot; \
       }&#39;
 </code></pre></div>
-<p>A successful response will be a JSON-encoded hash containing a <a href="http://jwt.io/">JSON Web Toke</a> and its expiration:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">HTTP/1.1 200
+<p>A successful response will be a JSON-encoded dict containing a <a href="http://jwt.io/">JSON Web Toke</a> and its expiration:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">HTTP/1.1 201
 Content-Type: application/json
 
 { &quot;token&quot;: [your JWT], &quot;expiration&quot;: [your JWT&#39;s expiration in Unix time] }
@@ -122,7 +131,7 @@ Content-Type: application/json
      -H &quot;accept: application/json&quot; \
      -H &quot;authorization: [your JWT from above]&quot;
 </code></pre></div>
-<p>A successful response will be JSON-encoded hash containing everything but your password:</p>
+<p>A successful response will be JSON-encoded dict containing everything but your password:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">HTTP/1.1 200
 Content-Type: application/json
 
@@ -151,6 +160,34 @@ Content-Type: application/json
   &quot;token&quot;:      [your JWT],
   &quot;expiration&quot;: [your JWT&#39;s expiration in Unix time],
   &quot;name&quot;:       [your team name]
+}
+</code></pre></div></li>
+<li><p>Update</p>
+
+<p>You can update you team&#39;s email, shared secret, single sign-on URL, webhook URL, and name. In accordance with the <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html">W3 spec</a>, you <strong>must</strong> pass the entire representation of your team in the request body; you can, of course, modify any part of it.</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">curl https://api.landline.io/teams/:team_name \
+     -X PUT \
+     -H &quot;accept: application/json&quot; \
+     -H &quot;content-type: application/json&quot; \
+     -H &quot;authorization: [your JWT]&quot;
+     -d &#39;{ \
+       &quot;email&quot;: &quot;email@email.com&quot;, \
+       &quot;secret&quot;: &quot;single sign-on secret&quot;, \
+       &quot;url&quot;: &quot;single sign-on url&quot;, \
+       &quot;name&quot;: &quot;team name&quot;, \
+       &quot;webhook_url&quot;: &quot;optional url for receiving webhooks&quot; \
+      }&#39;
+</code></pre></div>
+<p>A successful response will be a JSON-encoded dict of your team (omitting the password):</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">HTTP/1.1 200
+Content-Type: application/json
+
+{
+  &quot;email&quot;: &quot;email@email.com&quot;, \
+  &quot;secret&quot;: &quot;single sign-on secret&quot;, \
+  &quot;url&quot;: &quot;single sign-on url&quot;, \
+  &quot;name&quot;: &quot;team name&quot;, \
+  &quot;webhook_url&quot;: &quot;optional url for receiving webhooks&quot; \
 }
 </code></pre></div></li>
 </ul>

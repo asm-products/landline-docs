@@ -26,10 +26,10 @@ title:  "API"
           }'
     ```
 
-    A successful response will be a JSON-encoded hash containing a [JSON Web Toke](http://jwt.io/) and its expiration:
+    A successful response will be a JSON-encoded dict containing a [JSON Web Toke](http://jwt.io/) and its expiration:
 
     ```
-    HTTP/1.1 200
+    HTTP/1.1 201
     Content-Type: application/json
 
     { "token": [your JWT], "expiration": [your JWT's expiration in Unix time] }
@@ -45,7 +45,7 @@ title:  "API"
          -H "authorization: [your JWT from above]"
     ```
 
-    A successful response will be JSON-encoded hash containing everything but your password:
+    A successful response will be JSON-encoded dict containing everything but your password:
 
     ```
     HTTP/1.1 200
@@ -82,5 +82,39 @@ title:  "API"
       "token":      [your JWT],
       "expiration": [your JWT's expiration in Unix time],
       "name":       [your team name]
+    }
+    ```
+
+- Update
+
+    You can update you team's email, shared secret, single sign-on URL, webhook URL, and name. In accordance with the [W3 spec](http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html), you **must** pass the entire representation of your team in the request body; you can, of course, modify any part of it.
+
+    ```
+    curl https://api.landline.io/teams/:team_name \
+         -X PUT \
+         -H "accept: application/json" \
+         -H "content-type: application/json" \
+         -H "authorization: [your JWT]"
+         -d '{ \
+           "email": "email@email.com", \
+           "secret": "single sign-on secret", \
+           "url": "single sign-on url", \
+           "name": "team name", \
+           "webhook_url": "optional url for receiving webhooks" \
+          }'
+    ```
+
+    A successful response will be a JSON-encoded dict of your team (omitting the password):
+
+    ```
+    HTTP/1.1 200
+    Content-Type: application/json
+
+    {
+      "email": "email@email.com", \
+      "secret": "single sign-on secret", \
+      "url": "single sign-on url", \
+      "name": "team name", \
+      "webhook_url": "optional url for receiving webhooks" \
     }
     ```
