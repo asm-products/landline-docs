@@ -26,7 +26,7 @@ title:  "API"
           }'
     ```
 
-    A successful response will be a JSON-encoded dict containing a [JSON Web Toke](http://jwt.io/) and its expiration:
+    A successful response will be a JSON-encoded dict containing a [JSON Web Token](http://jwt.io/) and its expiration:
 
     ```
     HTTP/1.1 201
