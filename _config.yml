@@ -3,7 +3,7 @@ title: Landline Docs
 email: chuck@assembly.com
 description: > # this means to ignore newlines until "baseurl:"
   All the documentation for getting set up with Landline.io
-baseurl: "/landline-docs"
+baseurl: "/"
 url: "http://docs.landline.io"
 
 # Build settings
