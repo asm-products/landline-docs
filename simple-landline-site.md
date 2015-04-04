@@ -137,7 +137,19 @@ end
 
 A full overview of single sign-on techniques is outside of the purview of this tutorial. If you'd like to read more, Landline has followed [Discourse's lead](https://meta.discourse.org/t/official-single-sign-on-for-discourse/13045) for its SSO implementation.
 
-That aside, let's fill out the `SingleSignOnController`:
+We'll use the [Addressable](https://github.com/sporkmonger/addressable) gem &mdash; you know the drill:
+
+```
+# Gemfile
+
+gem 'addressable'
+```
+
+```
+$ bundle
+```
+
+Now let's fill out the `SingleSignOnController`:
 
 ```ruby
 class SingleSignOnController < ApplicationController

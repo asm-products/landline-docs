@@ -180,7 +180,13 @@ LANDLINE_URL=http://landline-dev.herokuapp.com
 </code></pre></div>
 <p>A full overview of single sign-on techniques is outside of the purview of this tutorial. If you&#39;d like to read more, Landline has followed <a href="https://meta.discourse.org/t/official-single-sign-on-for-discourse/13045">Discourse&#39;s lead</a> for its SSO implementation.</p>
 
-<p>That aside, let&#39;s fill out the <code>SingleSignOnController</code>:</p>
+<p>We&#39;ll use the <a href="https://github.com/sporkmonger/addressable">Addressable</a> gem &mdash; you know the drill:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text"># Gemfile
+
+gem &#39;addressable&#39;
+</code></pre></div><div class="highlight"><pre><code class="language-text" data-lang="text">$ bundle
+</code></pre></div>
+<p>Now let&#39;s fill out the <code>SingleSignOnController</code>:</p>
 <div class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">class</span> <span class="nc">SingleSignOnController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
   <span class="c1"># /sso will be requested from the browser, so we need to set the appropriate</span>
   <span class="c1"># CORS headers</span>
