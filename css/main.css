@@ -7,6 +7,10 @@ a {
   color: #14A2B7;
 }
 
+pre {
+  font-size: 11pt;
+}
+
 .landline-grey {
   color: #454A52;
 }

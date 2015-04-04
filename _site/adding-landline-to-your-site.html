@@ -98,11 +98,165 @@
       <div class="h3">
         <p>Let&#39;s build a simple application that uses Landline to let its users chat. We&#39;ll use <a href="http://rubyonrails.org/">Ruby on Rails</a>, as many developers are familiar with the framework. More examples will be coming soon!</p>
 
+<p>This tutorial assumes that you already have a working Rails installation; if you don&#39;t, it&#39;s probably best that you start there.</p>
+
 <p>Let&#39;s initialize a new app in your projects directory</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">$ rails new my-landline
 $ cd my-landline
 </code></pre></div>
-<p>We need users, so let&#39;s install and configure <a href="https://github.com/plataformatec/devise">Devise</a></p>
+<p>We need users, so let&#39;s install and configure <a href="https://github.com/plataformatec/devise">Devise</a>.</p>
+
+<p>First, edit your <code>Gemfile</code>:</p>
+<div class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">gem</span> <span class="s1">&#39;devise&#39;</span>
+</code></pre></div>
+<p>Then:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ bundle
+$ rails generate devise:install
+</code></pre></div>
+<p>Familiarize yourself with <code>config/initializers/devise.rb</code>. When you&#39;re ready, let&#39;s generate our user model and some views:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ rails g devise User
+$ rails g devise:views
+</code></pre></div>
+<p>Check out <code>app/models/user.rb</code>, <code>db/migrate/{timestamp}_devise_create_users.rb</code>, and <code>config/routes.rb</code>, where Devise has generated your <code>User</code> model and added a line for Devise&#39;s routes. If that all checks out, let&#39;s create the <code>users</code> table:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ rake db:migrate
+</code></pre></div>
+<p>Devise asks us to set up a default URL for its mailer in <code>config/environments/development.rb</code>:</p>
+<div class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">config</span><span class="o">.</span><span class="n">action_mailer</span><span class="o">.</span><span class="n">default_url_options</span> <span class="o">=</span> <span class="p">{</span> <span class="ss">host</span><span class="p">:</span> <span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="ss">port</span><span class="p">:</span> <span class="mi">3000</span> <span class="p">}</span>
+</code></pre></div>
+<p>Now you should be able to run <code>rails s</code> and navigate to <a href="http://localhost:3000/users/sign_in">http://localhost:3000/users/sign_in</a> to create an account:</p>
+
+<p><img src="images/demo_sign_up.png" alt="Demo sign up"></p>
+
+<p>Gorgeous, right?</p>
+
+<p>Next we need to set up a couple of routes. In <code>routes.rb</code>, add:</p>
+<div class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">root</span> <span class="s1">&#39;chat#index&#39;</span>
+
+<span class="n">get</span> <span class="s1">&#39;/sso&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;single_sign_on#sso&#39;</span>
+</code></pre></div>
+<p>When a user hits the root url, we want to check if they&#39;re logged in: if they are, we&#39;re going to log them in to Landline; if they aren&#39;t, we&#39;re going to send them to the sign up page.</p>
+
+<p>Let&#39;s set up our controllers to handle those actions and a view to display everything. Create a <code>ChatController</code>:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ touch app/controllers/chat_controller.rb
+$ mkdir app/views/chat
+$ touch app/views/chat/index.html.erb
+</code></pre></div>
+<p>Let&#39;s set up <code>ChatController</code> first:</p>
+<div class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">class</span> <span class="nc">ChatController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+
+  <span class="c1"># check if a user is logged in; this is Devise magic</span>
+  <span class="n">before_action</span> <span class="ss">:authenticate_user!</span>
+
+  <span class="k">def</span> <span class="nf">index</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div>
+<p>Trying going to <a href="http://localhost:3000">http://localhost:3000</a> &mdash; you should be redirected to <a href="http://localhost:3000/users/sign_in">http://localhost:3000/users/sign_in</a>.</p>
+
+<p>Go ahead and create an account now. You&#39;ll be redirected to <a href="http://localhost:3000">http://localhost:3000</a> &mdash; and there&#39;ll be nothing there.</p>
+
+<p>At this point, you&#39;ll need to create an account at <a href="http://dev.landline.io/signup">http://dev.landline.io/signup</a> (use the development server while you&#39;re getting used to everything). While you&#39;re doing that, you&#39;ll probably wonder what you&#39;re supposed to add for the single sign-on URL. That&#39;s where <code>get &#39;/sso&#39; =&gt; &#39;single_sign_on#sso&#39;</code> in your <code>routes.rb</code> comes in &mdash; <code>http://localhost:3000/sso</code> will work just fine for now.</p>
+
+<p>Copy the secret that Landline generates for you (or change it, save, and use one of your own making), and head back over to your app. We need to set up some environment variables; from the root directory of your app, run:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ cp .env.sample .env
+</code></pre></div>
+<p>Then fill in <code>.env</code> with the team name and secret with which you registered Landline. When you&#39;re finished, <code>.env</code> should look something like this:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">LANDLINE_SECRET=your-secret-here
+LANDLINE_TEAM=your-team-name-here
+LANDLINE_URL=http://landline-dev.herokuapp.com
+</code></pre></div>
+<p>These variables on their own won&#39;t do much; add <a href="https://github.com/bkeepers/dotenv">dotenv</a> to the Gemfile:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">gem &#39;dotenv-rails&#39;, :groups =&gt; [:development, :test]
+</code></pre></div>
+<p>And install it:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">bundle
+</code></pre></div>
+<p>You&#39;re almost ready to chat &mdash; we just need to set up the <code>SingleSignOnController</code>. Create that file in your <code>controllers</code> folder:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">touch app/controllers/single_sign_on_controller.rb
+</code></pre></div>
+<p>And set up the class:</p>
+<div class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">class</span> <span class="nc">SingleSignOnController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+<span class="k">end</span>
+</code></pre></div>
+<p>A full overview of single sign-on techniques is outside of the purview of this tutorial. If you&#39;d like to read more, Landline has followed <a href="https://meta.discourse.org/t/official-single-sign-on-for-discourse/13045">Discourse&#39;s lead</a> for its SSO implementation.</p>
+
+<p>That aside, let&#39;s fill out the <code>SingleSignOnController</code>:</p>
+<div class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">class</span> <span class="nc">SingleSignOnController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+  <span class="c1"># /sso will be requested from the browser, so we need to set the appropriate</span>
+  <span class="c1"># CORS headers</span>
+  <span class="n">after_filter</span> <span class="ss">:set_access_control_headers</span>
+
+  <span class="c1"># GET &#39;/sso&#39; is handled here</span>
+  <span class="k">def</span> <span class="nf">sso</span>
+    <span class="k">return</span> <span class="n">render</span> <span class="ss">nothing</span><span class="p">:</span> <span class="kp">true</span><span class="p">,</span> <span class="ss">status</span><span class="p">:</span> <span class="mi">401</span> <span class="k">unless</span> <span class="n">sign</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:payload</span><span class="o">]</span><span class="p">)</span> <span class="o">==</span> <span class="n">params</span><span class="o">[</span><span class="ss">:sig</span><span class="o">]</span>
+    <span class="k">return</span> <span class="n">render</span> <span class="ss">nothing</span><span class="p">:</span> <span class="kp">true</span><span class="p">,</span> <span class="ss">status</span><span class="p">:</span> <span class="mi">401</span> <span class="k">unless</span> <span class="n">nonce</span> <span class="o">=</span> <span class="n">extract_nonce</span>
+    <span class="k">return</span> <span class="n">render</span> <span class="ss">nothing</span><span class="p">:</span> <span class="kp">true</span><span class="p">,</span> <span class="ss">status</span><span class="p">:</span> <span class="mi">403</span> <span class="k">unless</span> <span class="n">current_user</span> <span class="o">=</span> <span class="n">extract_user</span>
+
+    <span class="n">user</span> <span class="o">=</span> <span class="no">Addressable</span><span class="o">::</span><span class="no">URI</span><span class="o">.</span><span class="n">new</span>
+    <span class="n">user</span><span class="o">.</span><span class="n">query_values</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="ss">nonce</span><span class="p">:</span> <span class="n">nonce</span><span class="p">,</span>
+      <span class="ss">team</span><span class="p">:</span> <span class="no">ENV</span><span class="o">[</span><span class="s2">&quot;LANDLINE_TEAM&quot;</span><span class="o">]</span><span class="p">,</span>
+      <span class="nb">id</span><span class="p">:</span> <span class="n">current_user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+      <span class="ss">avatar_url</span><span class="p">:</span> <span class="n">gravatar_url</span><span class="p">,</span>
+      <span class="c1"># really, these shouldn&#39;t all be the user&#39;s email, but it&#39;s fine for a</span>
+      <span class="c1"># quick demo</span>
+      <span class="ss">username</span><span class="p">:</span> <span class="n">current_user</span><span class="o">.</span><span class="n">email</span><span class="p">,</span>
+      <span class="ss">email</span><span class="p">:</span> <span class="n">current_user</span><span class="o">.</span><span class="n">email</span><span class="p">,</span>
+      <span class="ss">real_name</span><span class="p">:</span> <span class="n">current_user</span><span class="o">.</span><span class="n">email</span><span class="p">,</span>
+      <span class="ss">profile_url</span><span class="p">:</span> <span class="n">root_url</span>
+    <span class="p">}</span>
+
+    <span class="n">payload</span> <span class="o">=</span> <span class="no">Base64</span><span class="o">.</span><span class="n">encode64</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+    <span class="n">sig</span> <span class="o">=</span> <span class="n">sign</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="no">ENV</span><span class="o">[</span><span class="s2">&quot;LANDLINE_URL&quot;</span><span class="o">]</span><span class="si">}</span><span class="s2">/sessions/sso?payload=</span><span class="si">#{</span><span class="no">URI</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span><span class="si">}</span><span class="s2">&amp;sig=</span><span class="si">#{</span><span class="n">sig</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">redirect_to</span> <span class="n">url</span>
+  <span class="k">end</span>
+
+  <span class="kp">private</span>
+
+  <span class="k">def</span> <span class="nf">decode_payload</span>
+    <span class="n">payload</span> <span class="o">=</span> <span class="n">params</span><span class="o">[</span><span class="ss">:payload</span><span class="o">]</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="no">Base64</span><span class="o">.</span><span class="n">decode64</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+    <span class="n">uri</span> <span class="o">=</span> <span class="no">CGI</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">extract_nonce</span>
+    <span class="n">decode_payload</span><span class="o">[</span><span class="s2">&quot;nonce&quot;</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">extract_user</span>
+    <span class="c1"># NB: In a production app, this wouldn&#39;t be acceptable, as users know each</span>
+    <span class="c1"># other&#39;s emails and so could impersonate one another. For now, I&#39;m leaving</span>
+    <span class="c1"># it as an exercise to the reader to implement a more secure (perhaps</span>
+    <span class="c1"># token-based) authentication scheme.</span>
+    <span class="no">User</span><span class="o">.</span><span class="n">find_by</span><span class="p">(</span><span class="ss">email</span><span class="p">:</span> <span class="n">decode_payload</span><span class="o">[</span><span class="s2">&quot;user&quot;</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">gravatar_url</span>
+    <span class="s2">&quot;http://www.gravatar.com/avatar/</span><span class="si">#{</span><span class="no">Digest</span><span class="o">::</span><span class="no">MD5</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">(</span><span class="n">current_user</span><span class="o">.</span><span class="n">email</span><span class="o">.</span><span class="n">downcase</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">sign</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+    <span class="n">digest</span> <span class="o">=</span> <span class="no">OpenSSL</span><span class="o">::</span><span class="no">Digest</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;sha256&#39;</span><span class="p">)</span>
+    <span class="no">OpenSSL</span><span class="o">::</span><span class="no">HMAC</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">(</span><span class="n">digest</span><span class="p">,</span> <span class="no">ENV</span><span class="o">[</span><span class="s2">&quot;LANDLINE_SECRET&quot;</span><span class="o">]</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">set_access_control_headers</span>
+    <span class="n">headers</span><span class="o">[</span><span class="s1">&#39;Access-Control-Allow-Origin&#39;</span><span class="o">]</span> <span class="o">=</span> <span class="s1">&#39;*&#39;</span>
+    <span class="n">headers</span><span class="o">[</span><span class="s1">&#39;Access-Control-Allow-Methods&#39;</span><span class="o">]</span> <span class="o">=</span> <span class="s1">&#39;GET, POST, DELETE&#39;</span>
+    <span class="n">headers</span><span class="o">[</span><span class="s1">&#39;Access-Control-Request-Method&#39;</span><span class="o">]</span> <span class="o">=</span> <span class="s1">&#39;*&#39;</span>
+    <span class="n">headers</span><span class="o">[</span><span class="s1">&#39;Access-Control-Allow-Headers&#39;</span><span class="o">]</span> <span class="o">=</span> <span class="s1">&#39;Origin, Content-Type, Accept&#39;</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div>
+<p>Whew. That was a lot. Finally, in <code>app/views/chat/index.html.erb</code>, add:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">&lt;iframe width=&quot;100%&quot; height=&quot;800px&quot;
+  src=&quot;http://dev.landline.io/chat?team=&lt;%= ENV[&#39;LANDLINE_TEAM&#39;] %&gt;&amp;user=&lt;%= current_user.email %&gt;&quot;
+  style=&quot;border: none;&quot;&gt;
+&lt;/iframe&gt;
+</code></pre></div>
+<p>And you&#39;re set!</p>
 
       </div>
     </div>
