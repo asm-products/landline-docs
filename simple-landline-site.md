@@ -1,6 +1,6 @@
 ---
 layout: page
-title:  "Adding Landline to Your Site"
+title:  "Building a Simple Site with Landline"
 ---
 
 Let's build a simple application that uses Landline to let its users chat. We'll use [Ruby on Rails](http://rubyonrails.org/), as many developers are familiar with the framework. More examples will be coming soon!
