@@ -98,17 +98,17 @@
       <div class="h3">
         <p><a name="get-started"></a></p>
 
-<h3>1. Get started</h3>
+<h3>1. Create an account</h3>
 
 <ul>
-<li><p>Create an account.</p>
+<li><p>Go to <a href="https://landline.io/signup">https://landline.io/signup</a>.</p>
 
 <p><img src="images/signup.png" alt="Signup"></p>
 
 <p>Your team name needs to be unique across all Landline teams. If you suspect that someone is squatting on a team name that should be yours, let us know and we&#39;ll sort it out.</p>
 
 <p>Don&#39;t be intimidated by the <strong>single sign-on URL</strong> field &mdash; we&#39;ll walk you through it. For now, just choose a sensible path on your domain (we recommend <code>/sso</code>, but <code>/my/very/special/route/v3</code> works just as well) &mdash; you can always change it later.</p></li>
-<li><p>You should be redirected to <a href="https://landline.io/settings">https://landline.io/settings</a>; if not, go there.</p>
+<li><p>Once you&#39;ve successfully created an account, you&#39;ll be redirected to <a href="https://landline.io/settings">https://landline.io/settings</a>.</p>
 
 <p><img src="images/settings.png" alt="Settings"></p>
 
@@ -117,11 +117,33 @@
 <p>Note the <strong>shared secret</strong> field: Landline generated this for you automatically, and you can feel free to use it or change it. Whatever you do, make sure you keep it safe. If it ends up, for example, getting committed to a public repository, you should change it right away (and then update your <code>.gitignore</code>, <a href="https://www.youtube.com/watch?v=9mpU1uFrvgQ&amp;t=0m4s">ya dingus</a>).</p></li>
 </ul>
 
+<p><a name="set-up-chat"></a></p>
+
+<h3>2. Set up your chat client</h3>
+
+<p>Setting up your chat client couldn&#39;t be easier:</p>
+
+<ul>
+<li><p>Simply include the following <code>&lt;iframe&gt;</code> where you&#39;d like your chat to appear (the example below uses <a href="http://ruby-doc.org/stdlib-2.2.1/libdoc/erb/rdoc/ERB.html">ERB</a>; examples in other templating languages are coming soon):</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">&lt;!-- Minimally, you&#39;ll need to tell Landline your team name. --&gt;
+&lt;!-- It&#39;s recommended that you also tell Landline which room --&gt;
+&lt;!-- you&#39;d like your users to start in (every team gets a    --&gt;
+&lt;!-- &quot;general&quot; room for free; other rooms can be created if  --&gt;
+&lt;!-- needed). --&gt;
+
+&lt;iframe width=&quot;100%&quot;
+        height=&quot;100%&quot;
+        src=&quot;&lt;%= ENV[&#39;LANDLINE_HOST&#39;] %&gt;/chat?team=your_team_team&amp;room=&lt;%= your_chat_room_name %&gt;
+        style=&quot;border: none;&quot;&gt;
+&lt;/iframe&gt;
+</code></pre></div></li>
+</ul>
+
 <p><a name="set-up-sso"></a></p>
 
-<h3>2. Set up single sign-on on your server</h3>
+<h3>3. Set up single sign-on on your server</h3>
 
-<p>You&#39;re almost ready to chat. This is the trickiest part, but then you&#39;ll be home free.</p>
+<p>You&#39;re almost ready to chat &mdash; you just need to set up single sign-on (which lets you bring your own users to Landline), and you&#39;ll be home free.</p>
 
 <ul>
 <li><p>Set up your routes.</p>
@@ -139,28 +161,6 @@
 <p>Here&#39;s an <a href="https://github.com/asm-products/landline-docs/blob/gh-pages/examples/single_sign_on_controller.rb">example controller</a>, which you&#39;re free to use &mdash; you&#39;ll just need to be sure to serialize <code>current_user</code> correctly after the redirects. (At Assembly, we pass around a unique token; Landline will wrap up any query params and send them back to your server securely in the redirect (you <em>are</em> using SSL, right?), so you can stash whatever you want up there.)</p>
 
 <p>Using something other than Rails? We&#39;re working on more examples, and we&#39;d love <a href="https://github.com/asm-products/landline-docs">pull requests</a>.</p></li>
-</ul>
-
-<p><a name="set-up-chat"></a></p>
-
-<h3>3. Set up your chat client</h3>
-
-<p>Now that you&#39;ve <a href="/1-get-started.html">created an account</a> and <a href="/2-set-up-sso.html">set up your SSO endpoint</a>, you&#39;re ready to chat.</p>
-
-<ul>
-<li><p>Simply include the following <code>&lt;iframe&gt;</code> where you&#39;d like your chat to appear (the example below uses <a href="http://ruby-doc.org/stdlib-2.2.1/libdoc/erb/rdoc/ERB.html">ERB</a>; examples in other templating languages are coming soon):</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">&lt;!-- Minimally, you&#39;ll need to tell Landline your team name. --&gt;
-&lt;!-- It&#39;s recommended that you also tell Landline which room --&gt;
-&lt;!-- you&#39;d like your users to start in (every team gets a    --&gt;
-&lt;!-- &quot;general&quot; room for free; other rooms can be created if  --&gt;
-&lt;!-- needed). --&gt;
-
-&lt;iframe width=&quot;100%&quot;
-        height=&quot;100%&quot;
-        src=&quot;&lt;%= ENV[&#39;LANDLINE_HOST&#39;] %&gt;/chat?team=your_team_team&amp;room=&lt;%= your_chat_room_name %&gt;
-        style=&quot;border: none;&quot;&gt;
-&lt;/iframe&gt;
-</code></pre></div></li>
 </ul>
 
       </div>
