@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>API</title>
-  <meta name="description" content="Documentation and guides for Landline.io
+  <meta name="description" content="All the documentation for getting set up with Landline.io
 ">
 
   <link href="favicon.ico" rel="shortcut icon" type="image/x-icon">
@@ -88,6 +88,12 @@
             Teams
           </a>
         </li>
+
+        <li>
+          <a href="/api.html#users">
+            Users
+          </a>
+        </li>
       </ul>
     </li>
   </ul>
@@ -96,12 +102,26 @@
     <div class="sm-col sm-col-9 px2">
       <h1 class="landline-grey avenir h0 h0-responsive center mt0">API</h1>
       <div class="h3">
-        <p><a name="teams"></a></p>
+        <ul>
+<li><a href="#teams">Teams</a>
+
+<ul>
+<li><a href="#teams-create">create</a></li>
+<li><a href="#teams-show">show</a></li>
+<li><a href="#teams-login">login</a></li>
+<li><a href="#teams-update">update</a></li>
+<li><a href="#teams-authentication">authentication</a></li>
+</ul></li>
+<li><a href="#users">Users</a></li>
+</ul>
+
+<p><a name="teams"></a></p>
 
 <h3>Teams</h3>
 
-<ul>
-<li><p>Create</p>
+<p><a name="teams-create"></a></p>
+
+<h4>Create</h4>
 
 <p>You can create an account directly on <a href="https://landline.io">landline.io</a>,
 or you can <code>POST</code> your details to the <code>/teams</code> endpoint:</p>
@@ -123,13 +143,15 @@ or you can <code>POST</code> your details to the <code>/teams</code> endpoint:</
 Content-Type: application/json
 
 { &quot;token&quot;: [your JWT], &quot;expiration&quot;: [your JWT&#39;s expiration in Unix time] }
-</code></pre></div></li>
-<li><p>Read</p>
+</code></pre></div>
+<p><a name="teams-show"></a></p>
+
+<h4>Show</h4>
 
 <p>You can then get information about your team by hitting its endpoint:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">curl https://api.landline.io/teams/:team_name \
      -H &quot;accept: application/json&quot; \
-     -H &quot;authorization: [your JWT from above]&quot;
+     -H &quot;authorization: Bearer [your JWT from above]&quot;
 </code></pre></div>
 <p>A successful response will be JSON-encoded dict containing everything but your password:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">HTTP/1.1 200
@@ -142,8 +164,10 @@ Content-Type: application/json
     &quot;secret&quot;:      &quot;shared secret&quot;,
     &quot;webhook_url&quot;: &quot;webhook url&quot;,
 }
-</code></pre></div></li>
-<li><p>Login</p>
+</code></pre></div>
+<p><a name="teams-login"></a></p>
+
+<h4>Login</h4>
 
 <p>If your JWT has expired, you can generate a new one by logging in:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">curl https://api.landline.io/teams/:team_name \
@@ -161,15 +185,17 @@ Content-Type: application/json
   &quot;expiration&quot;: [your JWT&#39;s expiration in Unix time],
   &quot;name&quot;:       [your team name]
 }
-</code></pre></div></li>
-<li><p>Update</p>
+</code></pre></div>
+<p><a name="teams-update"></a></p>
+
+<h4>Update</h4>
 
 <p>You can update you team&#39;s email, shared secret, single sign-on URL, webhook URL, and name. In accordance with the <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html">W3 spec</a>, you <strong>must</strong> pass the entire representation of your team in the request body; you can, of course, modify any part of it.</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">curl https://api.landline.io/teams/:team_name \
      -X PUT \
      -H &quot;accept: application/json&quot; \
      -H &quot;content-type: application/json&quot; \
-     -H &quot;authorization: [your JWT]&quot;
+     -H &quot;authorization: Bearer [your JWT]&quot;
      -d &#39;{ \
        &quot;email&quot;: &quot;email@email.com&quot;, \
        &quot;secret&quot;: &quot;single sign-on secret&quot;, \
@@ -189,8 +215,54 @@ Content-Type: application/json
   &quot;name&quot;: &quot;team name&quot;, \
   &quot;webhook_url&quot;: &quot;optional url for receiving webhooks&quot; \
 }
-</code></pre></div></li>
-</ul>
+</code></pre></div>
+<p><a name="teams-authentication"></a></p>
+
+<h4>Authenticating as a team</h4>
+
+<p>As mentioned above, you&#39;ll generally want to use the JWT that Landline provides. However, Landline also allows you to make server-to-server calls using your shared secret. The shared secret acts as a private key that you control; it&#39;s essential that you keep it secure and that you change it if you suspect it&#39;s been compromised.</p>
+
+<p>Instead of using the Bearer Authorization scheme as you would with the JWT, shared secret-based authentication uses HTTP Basic Authentication; an update request would look like</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">curl https://api.landline.io/teams/:team_name \
+     -X PUT \
+     -H &quot;accept: application/json&quot; \
+     -H &quot;content-type: application/json&quot; \
+     # NB: The colon is significant
+     -u [your JWT]: \
+     -d &#39;{ \
+       &quot;email&quot;: &quot;email@email.com&quot;, \
+       &quot;secret&quot;: &quot;single sign-on secret&quot;, \
+       &quot;url&quot;: &quot;single sign-on url&quot;, \
+       &quot;name&quot;: &quot;team name&quot;, \
+       &quot;webhook_url&quot;: &quot;optional url for receiving webhooks&quot; \
+      }&#39;
+</code></pre></div>
+<p>And that&#39;s it. Obviously if you&#39;re not using <code>curl</code> you&#39;ll want to set the header in your language of choice, but you get the idea.</p>
+
+<p><a name="users"></a></p>
+
+<h3>Users</h3>
+
+<p><a name="users-create"></a></p>
+
+<h4>Create</h4>
+
+<p>Creating users happens as part of the single sign-on flow. After validating the signature that Landline has sent your server, you can wrap up the current user in the <code>payload</code> that your server sends as a response.</p>
+
+<p>Required fields:
+- email
+- external_id (the user&#39;s ID in your service; used for deep integrations with your app)
+- username</p>
+
+<p>Optional fields:
+- avatar<em>url
+- profile</em>url
+- real_name</p>
+
+<p>Simply add the fields that you&#39;re using to the base 64-encoded <code>payload</code> as query string parameters &mdash; in pseudocode:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">Base64.encode(&quot;nonce=#{nonce}&amp;email=#{user.email}&amp;external_id=#{user.id}&amp;username=#{user.username}&quot;)
+</code></pre></div>
+<p>See <a href="/simple-landline-site.html">Building a Simple Site with Landline</a> for a more detailed overview of the SSO request/response cycle. </p>
 
       </div>
     </div>
