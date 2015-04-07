@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>API - Teams</title>
+  <meta name="description" content="Documentation and guides for Landline.io
+">
+
+  <link href="favicon.ico" rel="shortcut icon" type="image/x-icon">
+  <link href="http://d2v52k3cl9vedd.cloudfront.net/basscss/5.0.0/basscss.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="canonical" href="http://docs.landline.io/api-teams.html">
+</head>
+
+  <body>
+    <a href="/" class="p2 absolute">
+  <img src="https://d1015h9unskp4y.cloudfront.net/attachments/353037ca-3497-4abe-86ed-61b7843105e9/Landline_Icon_Colour.png" style="max-width: 36px" />
+</a>
+
+    <div class="container p4">
+  <div class="clearfix">
+    <div class="sm-col sm-col-3 sm-show">
+  <ul class="list-reset p2">
+    <li class="bold">
+      <a href="/quick-start.html">Quick Start</a>
+    </li>
+    <li>
+      <ul class="list-reset p1">
+        <li>
+          <a href="/quick-start.html#get-started">
+            Get started
+          </a>
+        </li>
+
+        <li>
+          <a href="/quick-start.html#set-up-sso">
+            Set up SSO
+          </a>
+        </li>
+
+        <li>
+          <a href="/quick-start.html#set-up-chat">
+            Set up chat
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <li class="bold">
+      <a href="/chat.html">Chat</a>
+    </li>
+    <li>
+      <ul class="list-reset p1">
+        <li>
+          <a href="/chat.html#mentions">
+            Mentions
+          </a>
+        </li>
+
+        <li>
+          <a href="/chat.html#emoji">
+            Emoji
+          </a>
+        </li>
+
+        <li>
+          <a href="/chat.html#formatting">
+            Formatting
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <li class="bold mb2">
+      <a href="/webhooks.html">Webhooks</a>
+    </li>
+
+    <li class="bold">
+      <a href="/api.html">API</a>
+    </li>
+    <li>
+      <ul class="list-reset p1">
+        <li>
+          <a href="/api.html#teams">
+            Teams
+          </a>
+        </li>
+
+        <li>
+          <a href="/api.html#users">
+            Users
+          </a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+
+    <div class="sm-col sm-col-9 px2">
+      <h1 class="landline-grey avenir h0 h0-responsive center mt0">API - Teams</h1>
+      <div class="h3">
+        <ul>
+<li><a href="#teams-create">create</a></li>
+<li><a href="#teams-show">show</a></li>
+<li><a href="#teams-login">login</a></li>
+<li><a href="#teams-update">update</a></li>
+<li><a href="#teams-authentication">authentication</a></li>
+</ul>
+
+<p><a name="teams-create"></a></p>
+
+<h4>Create</h4>
+
+<p>You can create an account directly on <a href="https://landline.io">landline.io</a>,
+or you can <code>POST</code> your details to the <code>/teams</code> endpoint:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">curl https://api.landline.io/teams \
+     -X POST \
+     -H &quot;content-type: application/json&quot; \
+     -H &quot;accept: application/json&quot; \
+     -d &#39;{ \
+        &quot;email&quot;: &quot;email@email.com&quot;, \
+        &quot;password&quot;: &quot;password&quot;, \
+        &quot;secret&quot;: &quot;single sign-on secret&quot;, \
+        &quot;url&quot;: &quot;single sign-on url&quot;, \
+        &quot;name&quot;: &quot;team name&quot;, \
+        &quot;webhook_url&quot;: &quot;optional url for receiving webhooks&quot; \
+      }&#39;
+</code></pre></div>
+<p>A successful response will be a JSON-encoded dict containing a <a href="http://jwt.io/">JSON Web Token</a> and its expiration:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">HTTP/1.1 201
+Content-Type: application/json
+
+{ &quot;token&quot;: [your JWT], &quot;expiration&quot;: [your JWT&#39;s expiration in Unix time] }
+</code></pre></div>
+<p><a name="teams-show"></a></p>
+
+<h4>Show</h4>
+
+<p>You can then get information about your team by hitting its endpoint:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">curl https://api.landline.io/teams/:team_name \
+     -H &quot;accept: application/json&quot; \
+     -H &quot;authorization: Bearer [your JWT from above]&quot;
+</code></pre></div>
+<p>A successful response will be JSON-encoded dict containing everything but your password:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">HTTP/1.1 200
+Content-Type: application/json
+
+{
+    &quot;email&quot;:       &quot;email&quot;,
+    &quot;url&quot;:         &quot;url&quot;,
+    &quot;name&quot;:        &quot;name&quot;,
+    &quot;secret&quot;:      &quot;shared secret&quot;,
+    &quot;webhook_url&quot;: &quot;webhook url&quot;,
+}
+</code></pre></div>
+<p><a name="teams-login"></a></p>
+
+<h4>Login</h4>
+
+<p>If your JWT has expired, you can generate a new one by logging in:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">curl https://api.landline.io/teams/:team_name \
+     -X POST \
+     -H &quot;accept: application/json&quot; \
+     -H &quot;content-type: application/json&quot; \
+     -d &#39;{ &quot;password&quot;: [your password] }&#39;
+</code></pre></div>
+<p>A successful response will contain a new JWT, its expiration, and your team&#39;s name:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">HTTP/1.1 200
+Content-Type: application/json
+
+{
+  &quot;token&quot;:      [your JWT],
+  &quot;expiration&quot;: [your JWT&#39;s expiration in Unix time],
+  &quot;name&quot;:       [your team name]
+}
+</code></pre></div>
+<p><a name="teams-update"></a></p>
+
+<h4>Update</h4>
+
+<p>You can update you team&#39;s email, shared secret, single sign-on URL, webhook URL, and name. In accordance with the <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html">W3 spec</a>, you <strong>must</strong> pass the entire representation of your team in the request body; you can, of course, modify any part of it.</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">curl https://api.landline.io/teams/:team_name \
+     -X PUT \
+     -H &quot;accept: application/json&quot; \
+     -H &quot;content-type: application/json&quot; \
+     -H &quot;authorization: Bearer [your JWT]&quot;
+     -d &#39;{ \
+       &quot;email&quot;: &quot;email@email.com&quot;, \
+       &quot;secret&quot;: &quot;single sign-on secret&quot;, \
+       &quot;url&quot;: &quot;single sign-on url&quot;, \
+       &quot;name&quot;: &quot;team name&quot;, \
+       &quot;webhook_url&quot;: &quot;optional url for receiving webhooks&quot; \
+      }&#39;
+</code></pre></div>
+<p>A successful response will be a JSON-encoded dict of your team (omitting the password):</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">HTTP/1.1 200
+Content-Type: application/json
+
+{
+  &quot;email&quot;: &quot;email@email.com&quot;, \
+  &quot;secret&quot;: &quot;single sign-on secret&quot;, \
+  &quot;url&quot;: &quot;single sign-on url&quot;, \
+  &quot;name&quot;: &quot;team name&quot;, \
+  &quot;webhook_url&quot;: &quot;optional url for receiving webhooks&quot; \
+}
+</code></pre></div>
+<p><a name="teams-authentication"></a></p>
+
+<h4>Authenticating as a team</h4>
+
+<p>As mentioned above, you&#39;ll generally want to use the JWT that Landline provides. However, Landline also allows you to make server-to-server calls using your shared secret. The shared secret acts as a private key that you control; it&#39;s essential that you keep it secure and that you change it if you suspect it&#39;s been compromised.</p>
+
+<p>Instead of using the Bearer Authorization scheme as you would with the JWT, shared secret-based authentication uses HTTP Basic Authentication; an update request would look like</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">curl https://api.landline.io/teams/:team_name \
+     -X PUT \
+     -H &quot;accept: application/json&quot; \
+     -H &quot;content-type: application/json&quot; \
+     # NB: The colon is significant
+     -u [your shared secret]: \
+     -d &#39;{ \
+       &quot;email&quot;: &quot;email@email.com&quot;, \
+       &quot;secret&quot;: &quot;single sign-on secret&quot;, \
+       &quot;url&quot;: &quot;single sign-on url&quot;, \
+       &quot;name&quot;: &quot;team name&quot;, \
+       &quot;webhook_url&quot;: &quot;optional url for receiving webhooks&quot; \
+      }&#39;
+</code></pre></div>
+<p>And that&#39;s it. Obviously if you&#39;re not using <code>curl</code> you&#39;ll want to set the header in your language of choice, but you get the idea.</p>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+    <footer class="p2 bg-white border-top bottom-0 full-width center">
+  <p class="mb0">
+    <a href="http://landline.io/" class="bold landline-teal">Landline</a>
+    is being built with <span class="landline-red">&#10084;</span> on
+    <a href="http://assembly.com/landline" class="bold landline-yellow">
+      Assembly
+    </a>
+  </p>
+</footer>
+
+  </body>
+</html>
