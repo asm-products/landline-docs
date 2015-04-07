@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>API</title>
-  <meta name="description" content="All the documentation for getting set up with Landline.io
+  <meta name="description" content="Documentation and guides for Landline.io
 ">
 
   <link href="favicon.ico" rel="shortcut icon" type="image/x-icon">
@@ -113,6 +113,15 @@
 <li><a href="#teams-authentication">authentication</a></li>
 </ul></li>
 <li><a href="#users">Users</a></li>
+<li><a href="#rooms">Rooms</a>
+
+<ul>
+<li><a href="#rooms-create">create</a></li>
+<li><a href="#rooms-team-list">list all</a></li>
+<li><a href="#rooms-update">update</a></li>
+<li><a href="#rooms-list">list for user</a></li>
+<li><a href="#rooms-show">show for user</a></li>
+</ul></li>
 </ul>
 
 <p><a name="teams"></a></p>
@@ -228,7 +237,7 @@ Content-Type: application/json
      -H &quot;accept: application/json&quot; \
      -H &quot;content-type: application/json&quot; \
      # NB: The colon is significant
-     -u [your JWT]: \
+     -u [your shared secret]: \
      -d &#39;{ \
        &quot;email&quot;: &quot;email@email.com&quot;, \
        &quot;secret&quot;: &quot;single sign-on secret&quot;, \
@@ -262,8 +271,124 @@ Content-Type: application/json
 <p>Simply add the fields that you&#39;re using to the base 64-encoded <code>payload</code> as query string parameters &mdash; in pseudocode:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">Base64.encode(&quot;nonce=#{nonce}&amp;email=#{user.email}&amp;external_id=#{user.id}&amp;username=#{user.username}&quot;)
 </code></pre></div>
-<p>See <a href="/simple-landline-site.html">Building a Simple Site with Landline</a> for a more detailed overview of the SSO request/response cycle. </p>
+<p>See <a href="/simple-landline-site.html">Building a Simple Site with Landline</a> for a more detailed overview of the SSO request/response cycle.</p>
 
+<p><a name="rooms"></a></p>
+
+<h3>Rooms</h3>
+
+<p>The endpoint for administrative (team-level) tasks relating to <code>rooms</code> is (memorably enough), <code>/teams/:team_name/rooms[/:room]</code>. Use this endpoint for creating, updating, and deleting rooms.</p>
+
+<p><a name="rooms-create"></a></p>
+
+<h4>Create</h4>
+
+<p>Every room has a slug, a name (which defaults to the slug), and a topic. To create a room, simply <code>POST</code> these data to the <code>/teams/:team_name/rooms</code> endpoint:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">curl https://api.landline.io/teams/:team_name/rooms \
+     -X POST \
+     -H &quot;accept: application/json&quot; \
+     -H &quot;content-type: application/json&quot; \
+     -u [your shared secret]: \
+     -d &#39;{ \
+       &quot;slug&quot;: &quot;the room&#39;s slug&quot;, \
+       &quot;name&quot;: &quot;the room&#39;s name&quot;, \
+       &quot;topic&quot;: &quot;the room&#39;s topic&quot; \
+      }&#39;
+</code></pre></div>
+<p>A successful response will contain a JSON-encoded dict of the room that&#39;s been created:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">HTTP/1.1 201
+
+Content-Type: application/json
+&#39;{
+  &quot;slug&quot;: &quot;the room&#39;s slug&quot;,
+  &quot;name&quot;: &quot;the room&#39;s name&quot;,
+  &quot;topic&quot;: &quot;the room&#39;s topic&quot;
+}&#39;
+</code></pre></div>
+<p><a name="rooms-team-list"></a></p>
+
+<h4>List</h4>
+
+<p>You can list all of the rooms created for your team:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">curl https://api.landline.io/teams/:team_name/rooms \
+     -H &quot;accept: application/json&quot; \
+     -u [your shared secret]:
+</code></pre></div>
+<p>A successful response will contain a JSON-encoded dict of an array of rooms, which are in turn dicts of the form <code>{id, name, slug, topic}</code>:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">HTTP/1.1 201
+
+Content-Type: application/json
+&#39;{
+  &quot;rooms&quot;: rooms[]
+}&#39;
+</code></pre></div>
+<p><a name="rooms-update"></a></p>
+
+<h4>Update</h4>
+
+<p>Updating a room is much like creating one, except you specify the target room in the request (because you know it ahead of time), and issue a <code>PUT</code> request instead of a <code>POST</code>:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">curl https://api.landline.io/teams/:team_name/rooms/:room_slug \
+     -X POST \
+     -H &quot;accept: application/json&quot; \
+     -H &quot;content-type: application/json&quot; \
+     # NB: The colon is significant
+     -u [your shared secret]: \
+     -d &#39;{ \
+       &quot;slug&quot;: &quot;the room&#39;s slug&quot;, \
+       &quot;name&quot;: &quot;the room&#39;s name&quot;, \
+       &quot;topic&quot;: &quot;the room&#39;s topic&quot; \
+      }&#39;
+</code></pre></div>
+<p>A successful response will contain a JSON-encoded dict of the room that&#39;s been created:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">HTTP/1.1 200
+
+Content-Type: application/json
+{
+  &quot;slug&quot;: &quot;the room&#39;s slug&quot;,
+  &quot;name&quot;: &quot;the room&#39;s name&quot;,
+  &quot;topic&quot;: &quot;the room&#39;s topic&quot;
+}
+</code></pre></div>
+<p>User-related room actions (showing a particular room, listing rooms with subscriptions) are scoped to <code>/rooms</code>.</p>
+
+<p><a name="rooms-list"></a></p>
+
+<h4>List</h4>
+
+<p>When a user requests a list of rooms, it&#39;s assumed that s/he also wants information about his/her room memberships and the initial unread state of the rooms.</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">curl https://api.landline.io/teams/:team_name/rooms \
+     -H &quot;accept: application/json&quot; \
+     -H &quot;authorization: Bearer [user&#39;s JWT]&quot;
+</code></pre></div>
+<p>A successful response will contain a JSON-encoded dict of rooms, memberships, and unread rooms, where <code>rooms</code> contains <code>{id, name, slug, topic}</code>, and <code>memberships</code> and <code>unread_rooms</code> are lists of room IDs:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">HTTP/1.1 200
+
+Content-Type: application/json
+{
+    &quot;rooms&quot;:        rooms[],
+    &quot;memberships&quot;:  memberships[],
+    &quot;unread_rooms&quot;: unread[],
+}
+</code></pre></div>
+<p><a name="rooms-show"></a></p>
+
+<h4>Show</h4>
+
+<p>Requesting a specific room will return the room object, along with its <a href="https://github.com/asm-products/readraptor">Readraptor</a> pixel, which can be loaded in an <code>&lt;img&gt;</code> tag to mark the room as read.</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">curl https://api.landline.io/teams/:team_name/rooms/:room_slug \
+     -H &quot;accept: application/json&quot; \
+     -H &quot;authorization: Bearer [user&#39;s JWT]&quot;
+</code></pre></div>
+<p>And a successful response:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">HTTP/1.1 200
+
+Content-Type: application/json
+
+{
+  &quot;room&quot;: room{},
+  &quot;pixel&quot;: pixel
+}
+</code></pre></div>
       </div>
     </div>
   </div>
