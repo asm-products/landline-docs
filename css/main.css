@@ -7,8 +7,16 @@ a {
   color: #14A2B7;
 }
 
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 500;
+}
+
 pre {
   font-size: 11pt;
+}
+
+.bold {
+  font-weight: 600;
 }
 
 .landline-grey {

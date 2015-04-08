@@ -1,6 +1,6 @@
 ---
 layout: "page"
-title: "API - Rooms"
+title: "Rooms"
 ---
 
 - [create](#rooms-create)

@@ -16,9 +16,12 @@
 </head>
 
   <body>
-    <div class="container">
-  <a href="/" class="p2 absolute">
-    <img src="https://d1015h9unskp4y.cloudfront.net/attachments/353037ca-3497-4abe-86ed-61b7843105e9/Landline_Icon_Colour.png" style="max-width: 36px" />
+    <div class="clearfix">
+  <a href="/" class="p2 block left">
+    <img src="https://d1015h9unskp4y.cloudfront.net/attachments/353037ca-3497-4abe-86ed-61b7843105e9/Landline_Icon_Colour.png" style="max-width: 36px" class="block" />
+  </a>
+  <a href="/" class="p2 block left">
+    <h2 class="landline-grey m0">Documentation</h2>
   </a>
 </div>
 
@@ -80,23 +83,22 @@
       <a href="/webhooks.html">Webhooks</a>
     </li>
 
-    <li class="bold">
-      <a href="/api.html">API</a>
-    </li>
     <li>
-      <ul class="list-reset p1">
-        <li>
-          <a href="/api-teams.html">
-            Teams
-          </a>
-        </li>
+      <a href="/teams.html" class="bold">
+        Teams
+      </a>
+    </li>
 
-        <li>
-          <a href="/api-users.html#users">
-            Users
-          </a>
-        </li>
-      </ul>
+    <li>
+      <a href="/users.html" class="bold">
+        Users
+      </a>
+    </li>
+
+    <li>
+      <a href="/rooms.html" class="bold">
+        Rooms
+      </a>
     </li>
   </ul>
 </div>
@@ -174,9 +176,7 @@
       </div>
     </div>
   </div>
-</div>
-
-    <footer class="p2 bg-white border-top bottom-0 full-width center">
+  <footer class="mt2 p2 bg-white border-top bottom-0 center">
   <p class="mb0">
     <a href="http://landline.io/" class="bold landline-teal">Landline</a>
     is being built with <span class="landline-red">&#10084;</span> on
@@ -185,6 +185,8 @@
     </a>
   </p>
 </footer>
+
+</div>
 
   </body>
 </html>

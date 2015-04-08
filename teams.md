@@ -1,6 +1,6 @@
 ---
 layout: "page"
-title: "API - Teams"
+title: "Teams"
 ---
 
 - [create](#teams-create)

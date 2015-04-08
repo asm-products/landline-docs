@@ -1,6 +1,6 @@
 ---
 layout: "page"
-title: "API - Users"
+title: "Users"
 ---
 
 <a name="users"></a>

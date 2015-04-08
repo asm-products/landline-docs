@@ -5,20 +5,23 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>API</title>
+  <title>Users</title>
   <meta name="description" content="Documentation and guides for Landline.io
 ">
 
   <link href="favicon.ico" rel="shortcut icon" type="image/x-icon">
   <link href="http://d2v52k3cl9vedd.cloudfront.net/basscss/5.0.0/basscss.min.css" rel="stylesheet">
   <link rel="stylesheet" href="css/main.css">
-  <link rel="canonical" href="http://docs.landline.io/api.html">
+  <link rel="canonical" href="http://docs.landline.io/users.html">
 </head>
 
   <body>
-    <div class="container">
-  <a href="/" class="p2 absolute">
-    <img src="https://d1015h9unskp4y.cloudfront.net/attachments/353037ca-3497-4abe-86ed-61b7843105e9/Landline_Icon_Colour.png" style="max-width: 36px" />
+    <div class="clearfix">
+  <a href="/" class="p2 block left">
+    <img src="https://d1015h9unskp4y.cloudfront.net/attachments/353037ca-3497-4abe-86ed-61b7843105e9/Landline_Icon_Colour.png" style="max-width: 36px" class="block" />
+  </a>
+  <a href="/" class="p2 block left">
+    <h2 class="landline-grey m0">Documentation</h2>
   </a>
 </div>
 
@@ -80,58 +83,58 @@
       <a href="/webhooks.html">Webhooks</a>
     </li>
 
-    <li class="bold">
-      <a href="/api.html">API</a>
-    </li>
     <li>
-      <ul class="list-reset p1">
-        <li>
-          <a href="/api-teams.html">
-            Teams
-          </a>
-        </li>
+      <a href="/teams.html" class="bold">
+        Teams
+      </a>
+    </li>
 
-        <li>
-          <a href="/api-users.html#users">
-            Users
-          </a>
-        </li>
-      </ul>
+    <li>
+      <a href="/users.html" class="bold">
+        Users
+      </a>
+    </li>
+
+    <li>
+      <a href="/rooms.html" class="bold">
+        Rooms
+      </a>
     </li>
   </ul>
 </div>
 
     <div class="sm-col sm-col-9 px2">
-      <h1 class="landline-grey avenir h0 h0-responsive center mt0">API</h1>
+      <h1 class="landline-grey avenir h0 h0-responsive center mt0">Users</h1>
       <div class="h3">
-        <ul>
-<li><a href="/api-teams.html">Teams</a>
+        <p><a name="users"></a></p>
 
-<ul>
-<li><a href="/api-teams.html#teams-create">create</a></li>
-<li><a href="/api-teams.html#teams-show">show</a></li>
-<li><a href="/api-teams.html#teams-login">login</a></li>
-<li><a href="/api-teams.html#teams-update">update</a></li>
-<li><a href="/api-teams.html#teams-authentication">authentication</a></li>
-</ul></li>
-<li><a href="/api-users.html">Users</a></li>
-<li><a href="/api-rooms.html">Rooms</a>
+<h3>Users</h3>
 
-<ul>
-<li><a href="/api-rooms.html#rooms-create">create</a></li>
-<li><a href="/api-rooms.html#rooms-team-list">list all</a></li>
-<li><a href="/api-rooms.html#rooms-update">update</a></li>
-<li><a href="/api-rooms.html#rooms-list">list for user</a></li>
-<li><a href="/api-rooms.html#rooms-show">show for user</a></li>
-</ul></li>
-</ul>
+<p><a name="users-create"></a></p>
+
+<h4>Create</h4>
+
+<p>Creating users happens as part of the single sign-on flow. After validating the signature that Landline has sent your server, you can wrap up the current user in the <code>payload</code> that your server sends as a response.</p>
+
+<p>Required fields:
+- email
+- external_id (the user&#39;s ID in your service; used for deep integrations with your app)
+- username</p>
+
+<p>Optional fields:
+- avatar<em>url
+- profile</em>url
+- real_name</p>
+
+<p>Simply add the fields that you&#39;re using to the base 64-encoded <code>payload</code> as query string parameters &mdash; in pseudocode:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">Base64.encode(&quot;nonce=#{nonce}&amp;email=#{user.email}&amp;external_id=#{user.id}&amp;username=#{user.username}&quot;)
+</code></pre></div>
+<p>See <a href="/simple-landline-site.html">Building a Simple Site with Landline</a> for a more detailed overview of the SSO request/response cycle.</p>
 
       </div>
     </div>
   </div>
-</div>
-
-    <footer class="p2 bg-white border-top bottom-0 full-width center">
+  <footer class="mt2 p2 bg-white border-top bottom-0 center">
   <p class="mb0">
     <a href="http://landline.io/" class="bold landline-teal">Landline</a>
     is being built with <span class="landline-red">&#10084;</span> on
@@ -140,6 +143,8 @@
     </a>
   </p>
 </footer>
+
+</div>
 
   </body>
 </html>
