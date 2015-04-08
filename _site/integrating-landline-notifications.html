@@ -16,9 +16,11 @@
 </head>
 
   <body>
-    <a href="/" class="p2 absolute">
-  <img src="https://d1015h9unskp4y.cloudfront.net/attachments/353037ca-3497-4abe-86ed-61b7843105e9/Landline_Icon_Colour.png" style="max-width: 36px" />
-</a>
+    <div class="container">
+  <a href="/" class="p2 absolute">
+    <img src="https://d1015h9unskp4y.cloudfront.net/attachments/353037ca-3497-4abe-86ed-61b7843105e9/Landline_Icon_Colour.png" style="max-width: 36px" />
+  </a>
+</div>
 
     <div class="container p4">
   <div class="clearfix">
@@ -110,45 +112,85 @@
 
 <p>To get started, you&#39;ll need to authenticate with Landline using the single sign-on flow. Assuming that you SSO <a href="/quick-start.html#set-up-sso">set up on your server</a> and included <code>&lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js&quot;&gt;&lt;/script&gt;</code> (which exposes the <code>io</code> global) somewhere on your page:</p>
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">// This code means to present a simple example; it&#39;s not quite</span>
-<span class="c1">// production-level code, nor is it meant to be.</span>
+<span class="c1">// production-level code, nor is it meant to be. The methods we&#39;re</span>
+<span class="c1">// demonstrating, in order of execution:</span>
+<span class="c1">// - logInToLandline()</span>
+<span class="c1">// - getInitialRooms(token)</span>
+<span class="c1">// - setUpSocket(token)</span>
+
 <span class="kd">function</span> <span class="nx">logInToLandline</span><span class="p">()</span> <span class="p">{</span>
   <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">({</span>
     <span class="nx">url</span><span class="o">:</span> <span class="err">`</span><span class="nx">https</span><span class="o">:</span><span class="c1">//landline.io/sessions/new?team=${your_team_name}`</span>
     <span class="nx">success</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
-      <span class="c1">// tokens expire in three days; should be plenty of time</span>
-      <span class="c1">// for your user&#39;s session</span>
+      <span class="c1">// Tokens expire in three days; should be plenty of time</span>
+      <span class="c1">// for your user&#39;s session.</span>
       <span class="kd">var</span> <span class="nx">expiration</span> <span class="o">=</span> <span class="nx">result</span><span class="p">.</span><span class="nx">expiration</span><span class="p">;</span>
       <span class="kd">var</span> <span class="nx">token</span> <span class="o">=</span> <span class="nx">result</span><span class="p">.</span><span class="nx">token</span><span class="p">;</span>
 
-      <span class="kd">var</span> <span class="nx">socket</span> <span class="o">=</span> <span class="nx">io</span><span class="p">(</span><span class="s1">&#39;https://landline.io&#39;</span><span class="p">);</span>
-      <span class="c1">// the connection will be confirmed asynchronously</span>
-      <span class="nx">socket</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;connect&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-        <span class="c1">// you&#39;ll need to emit an `&#39;auth&#39;` event with the token</span>
-        <span class="c1">// you received in the response to the first request</span>
-        <span class="nx">socket</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;auth&#39;</span><span class="p">,</span> <span class="nx">token</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">response</span><span class="p">)</span> <span class="p">{</span>
-          <span class="k">if</span> <span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">success</span><span class="p">)</span> <span class="p">{</span>
-            <span class="c1">// Landline emits both the message and the room&#39;s</span>
-            <span class="c1">// name when a message is created</span>
-            <span class="k">this</span><span class="p">.</span><span class="nx">socket</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">message</span><span class="p">,</span> <span class="nx">roomName</span><span class="p">)</span> <span class="p">{</span>
-              <span class="c1">// use the `created_at` field on the message so that // you can dismiss notifications based on the time</span>
-              <span class="c1">// that they were checked</span>
-              <span class="kd">var</span> <span class="nx">createdAt</span> <span class="o">=</span> <span class="nx">message</span><span class="p">.</span><span class="nx">created_at</span><span class="p">;</span>
-
-              <span class="c1">// you&#39;d implement this function yourself, depending</span>
-              <span class="c1">// on how you handle unreads</span>
-              <span class="nx">markRoomAsUnread</span><span class="p">(</span><span class="nx">roomName</span><span class="p">,</span> <span class="nx">createdAt</span><span class="p">);</span>
-            <span class="p">});</span>
-          <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-            <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">response</span><span class="p">);</span>
-          <span class="p">}</span>
-        <span class="p">});</span>
-      <span class="p">});</span>
+      <span class="nx">getInitialRooms</span><span class="p">(</span><span class="nx">token</span><span class="p">);</span>
+      <span class="nx">setUpSocket</span><span class="p">(</span><span class="nx">token</span><span class="p">);</span>
     <span class="p">},</span>
     <span class="nx">error</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
       <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
     <span class="p">}</span>
   <span class="p">});</span>
-<span class="p">};</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">getInitialRooms</span><span class="p">(</span><span class="nx">token</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">({</span>
+    <span class="nx">url</span><span class="o">:</span> <span class="s1">&#39;https://landline.io/rooms&#39;</span><span class="p">,</span>
+    <span class="nx">method</span><span class="o">:</span> <span class="s1">&#39;GET&#39;</span><span class="p">,</span>
+    <span class="nx">headers</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">Authorization</span><span class="o">:</span> <span class="s1">&#39;Bearer &#39;</span> <span class="o">+</span> <span class="nx">token</span><span class="p">,</span>
+      <span class="s1">&#39;Content-Type&#39;</span><span class="o">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="nx">dataType</span><span class="o">:</span> <span class="s1">&#39;json&#39;</span><span class="p">,</span>
+    <span class="nx">success</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">// A successful request will yield a JSON object</span>
+      <span class="c1">// with `memberships` (a list of IDs of rooms to which the</span>
+      <span class="c1">// user is subscribed), `rooms` (a list of your team&#39;s room</span>
+      <span class="c1">// objects), and `unread_rooms` (a list of IDs of rooms in</span>
+      <span class="c1">// which the user has unread messages) fields. Do with these</span>
+      <span class="c1">// what you need to do.</span>
+      <span class="kd">var</span> <span class="nx">memberships</span> <span class="o">=</span> <span class="nx">result</span><span class="p">.</span><span class="nx">memberships</span><span class="p">;</span>
+      <span class="kd">var</span> <span class="nx">rooms</span> <span class="o">=</span> <span class="nx">result</span><span class="p">.</span><span class="nx">rooms</span><span class="p">;</span>
+      <span class="kd">var</span> <span class="nx">unreadRooms</span> <span class="o">=</span> <span class="nx">result</span><span class="p">.</span><span class="nx">unread_rooms</span><span class="p">;</span>
+
+      <span class="nx">handleInitialRooms</span><span class="p">(</span><span class="nx">memberships</span><span class="p">,</span> <span class="nx">rooms</span><span class="p">,</span> <span class="nx">unreadRooms</span><span class="p">);</span>
+    <span class="p">},</span>
+    <span class="nx">error</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">jqXhr</span><span class="p">,</span> <span class="nx">textStatus</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">textStatus</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">});</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">setUpSocket</span><span class="p">(</span><span class="nx">token</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">socket</span> <span class="o">=</span> <span class="nx">io</span><span class="p">(</span><span class="s1">&#39;https://landline.io&#39;</span><span class="p">);</span>
+  <span class="c1">// the connection will be confirmed asynchronously</span>
+  <span class="nx">socket</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;connect&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// you&#39;ll need to emit an `&#39;auth&#39;` event with the token</span>
+    <span class="c1">// you received in the response to the first request</span>
+    <span class="nx">socket</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;auth&#39;</span><span class="p">,</span> <span class="nx">token</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">response</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">success</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// Landline emits both the message and the room&#39;s</span>
+        <span class="c1">// name when a message is created</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">socket</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">message</span><span class="p">,</span> <span class="nx">roomName</span><span class="p">)</span> <span class="p">{</span>
+          <span class="c1">// use the `created_at` field on the message so that // you can dismiss notifications based on the time</span>
+          <span class="c1">// that they were checked</span>
+          <span class="kd">var</span> <span class="nx">createdAt</span> <span class="o">=</span> <span class="nx">message</span><span class="p">.</span><span class="nx">created_at</span><span class="p">;</span>
+
+          <span class="c1">// you&#39;d implement this function yourself, depending</span>
+          <span class="c1">// on how you handle unreads</span>
+          <span class="nx">markRoomAsUnread</span><span class="p">(</span><span class="nx">roomName</span><span class="p">,</span> <span class="nx">createdAt</span><span class="p">);</span>
+        <span class="p">});</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="c1">// figure out why the response failed and fix it --</span>
+        <span class="c1">// is your token expired?</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">response</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+  <span class="p">});</span>
+<span class="p">}</span>
 </code></pre></div>
 <p>And it&#39;s as easy as that.</p>
 
