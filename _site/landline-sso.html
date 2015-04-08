@@ -171,8 +171,7 @@
 <p>And issue another <code>302</code> redirect:</p>
 <div class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">redirect_to</span> <span class="n">url</span>
 </code></pre></div></li>
-<li><p>https://api.landline.io/sessions/sso?payload=#{URI.escape(payload)}&amp;sig=#{sig}&quot;</p></li>
-</ol>
+<li><p>https://api.landline.io/sessions/sso?payload=#{URI.escape(payload)}&amp;sig=#{sig}&quot;</p>
 
 <p>At this point, Landline logs in your user (creating a new user record if necessary), and responds with a <a href="http://jwt.io/">JSON Web Token</a> and its expiration:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">HTTP/1.1 200
@@ -180,7 +179,8 @@ Content-Type: application/json
 
 {&quot;token&quot;: token, &quot;expiration&quot;: &quot;expiration&quot;}
 </code></pre></div>
-<p>And your user is ready to chat.</p>
+<p>And your user is ready to chat.</p></li>
+</ol>
 
       </div>
     </div>

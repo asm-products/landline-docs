@@ -90,13 +90,13 @@ Landline's single sign-on flow has borrowed heavily from [Discourse's implementa
 
 3. https://api.landline.io/sessions/sso?payload=#{URI.escape(payload)}&sig=#{sig}"
 
-At this point, Landline logs in your user (creating a new user record if necessary), and responds with a [JSON Web Token](http://jwt.io/) and its expiration:
+    At this point, Landline logs in your user (creating a new user record if necessary), and responds with a [JSON Web Token](http://jwt.io/) and its expiration:
 
-```
-HTTP/1.1 200
-Content-Type: application/json
+    ```
+    HTTP/1.1 200
+    Content-Type: application/json
 
-{"token": token, "expiration": "expiration"}
-```
+    {"token": token, "expiration": "expiration"}
+    ```
 
-And your user is ready to chat.
+    And your user is ready to chat.
