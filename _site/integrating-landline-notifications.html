@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Integrating Landline Notifications in Your Site</title>
+  <meta name="description" content="Documentation and guides for Landline.io
+">
+
+  <link href="favicon.ico" rel="shortcut icon" type="image/x-icon">
+  <link href="http://d2v52k3cl9vedd.cloudfront.net/basscss/5.0.0/basscss.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="canonical" href="http://docs.landline.io/integrating-landline-notifications.html">
+</head>
+
+  <body>
+    <a href="/" class="p2 absolute">
+  <img src="https://d1015h9unskp4y.cloudfront.net/attachments/353037ca-3497-4abe-86ed-61b7843105e9/Landline_Icon_Colour.png" style="max-width: 36px" />
+</a>
+
+    <div class="container p4">
+  <div class="clearfix">
+    <div class="sm-col sm-col-3 sm-show">
+  <ul class="list-reset p2">
+    <li class="bold">
+      <a href="/quick-start.html">Quick Start</a>
+    </li>
+    <li>
+      <ul class="list-reset p1">
+        <li>
+          <a href="/quick-start.html#get-started">
+            Get started
+          </a>
+        </li>
+
+        <li>
+          <a href="/quick-start.html#set-up-sso">
+            Set up SSO
+          </a>
+        </li>
+
+        <li>
+          <a href="/quick-start.html#set-up-chat">
+            Set up chat
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <li class="bold">
+      <a href="/chat.html">Chat</a>
+    </li>
+    <li>
+      <ul class="list-reset p1">
+        <li>
+          <a href="/chat.html#mentions">
+            Mentions
+          </a>
+        </li>
+
+        <li>
+          <a href="/chat.html#emoji">
+            Emoji
+          </a>
+        </li>
+
+        <li>
+          <a href="/chat.html#formatting">
+            Formatting
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <li class="bold mb2">
+      <a href="/webhooks.html">Webhooks</a>
+    </li>
+
+    <li class="bold">
+      <a href="/api.html">API</a>
+    </li>
+    <li>
+      <ul class="list-reset p1">
+        <li>
+          <a href="/api.html#teams">
+            Teams
+          </a>
+        </li>
+
+        <li>
+          <a href="/api.html#users">
+            Users
+          </a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+
+    <div class="sm-col sm-col-9 px2">
+      <h1 class="landline-grey avenir h0 h0-responsive center mt0">Integrating Landline Notifications in Your Site</h1>
+      <div class="h3">
+        <p>This guide assumes that you&#39;ve already created an account on <a href="https://landline.io">landline.io</a> &mdash;. It might also be helpful to take a look at the <a href="/quick-start.html">quick start</a>.</p>
+
+<p>Now that you&#39;ve got Landline set up in an <code>&lt;iframe&gt;</code> on your site, you might be wondering how to extend the built-in notifications for your users. Maybe you want to provide them something like this:</p>
+
+<p><img src="images/notifications_example.png" alt="Notifications"></p>
+
+<p>To get started, you&#39;ll need to authenticate with Landline using the single sign-on flow. Assuming that you SSO <a href="/quick-start.html#set-up-sso">set up on your server</a> and included <code>&lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js&quot;&gt;&lt;/script&gt;</code> (which exposes the <code>io</code> global) somewhere on your page:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">// This code means to present a simple example; it&#39;s not quite</span>
+<span class="c1">// production-level code, nor is it meant to be.</span>
+<span class="kd">function</span> <span class="nx">logInToLandline</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">({</span>
+    <span class="nx">url</span><span class="o">:</span> <span class="err">`</span><span class="nx">https</span><span class="o">:</span><span class="c1">//landline.io/sessions/new?team=${your_team_name}`</span>
+    <span class="nx">success</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">// tokens expire in three days; should be plenty of time</span>
+      <span class="c1">// for your user&#39;s session</span>
+      <span class="kd">var</span> <span class="nx">expiration</span> <span class="o">=</span> <span class="nx">result</span><span class="p">.</span><span class="nx">expiration</span><span class="p">;</span>
+      <span class="kd">var</span> <span class="nx">token</span> <span class="o">=</span> <span class="nx">result</span><span class="p">.</span><span class="nx">token</span><span class="p">;</span>
+
+      <span class="kd">var</span> <span class="nx">socket</span> <span class="o">=</span> <span class="nx">io</span><span class="p">(</span><span class="s1">&#39;https://landline.io&#39;</span><span class="p">);</span>
+      <span class="c1">// the connection will be confirmed asynchronously</span>
+      <span class="nx">socket</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;connect&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="c1">// you&#39;ll need to emit an `&#39;auth&#39;` event with the token</span>
+        <span class="c1">// you received in the response to the first request</span>
+        <span class="nx">socket</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;auth&#39;</span><span class="p">,</span> <span class="nx">token</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">response</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">success</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">// Landline emits both the message and the room&#39;s</span>
+            <span class="c1">// name when a message is created</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">socket</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">message</span><span class="p">,</span> <span class="nx">roomName</span><span class="p">)</span> <span class="p">{</span>
+              <span class="c1">// use the `created_at` field on the message so that // you can dismiss notifications based on the time</span>
+              <span class="c1">// that they were checked</span>
+              <span class="kd">var</span> <span class="nx">createdAt</span> <span class="o">=</span> <span class="nx">message</span><span class="p">.</span><span class="nx">created_at</span><span class="p">;</span>
+
+              <span class="c1">// you&#39;d implement this function yourself, depending</span>
+              <span class="c1">// on how you handle unreads</span>
+              <span class="nx">markRoomAsUnread</span><span class="p">(</span><span class="nx">roomName</span><span class="p">,</span> <span class="nx">createdAt</span><span class="p">);</span>
+            <span class="p">});</span>
+          <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">response</span><span class="p">);</span>
+          <span class="p">}</span>
+        <span class="p">});</span>
+      <span class="p">});</span>
+    <span class="p">},</span>
+    <span class="nx">error</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">});</span>
+<span class="p">};</span>
+</code></pre></div>
+<p>And it&#39;s as easy as that.</p>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+    <footer class="p2 bg-white border-top bottom-0 full-width center">
+  <p class="mb0">
+    <a href="http://landline.io/" class="bold landline-teal">Landline</a>
+    is being built with <span class="landline-red">&#10084;</span> on
+    <a href="http://assembly.com/landline" class="bold landline-yellow">
+      Assembly
+    </a>
+  </p>
+</footer>
+
+  </body>
+</html>
