@@ -38,7 +38,7 @@ Setting up your chat client couldn't be easier:
 
     <iframe width="100%"
             height="100%"
-            src="<%= ENV['LANDLINE_HOST'] %>/chat?team=your_team_team&room=<%= your_chat_room_name %>
+            src="https://landline.io/chat?team=your_team_team&room=<%= your_chat_room_name %>
             style="border: none;">
     </iframe>
     ```
