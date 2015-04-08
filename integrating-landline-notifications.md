@@ -13,7 +13,7 @@ Now that you've got Landline set up in an `<iframe>` on your site, you might be 
 To get started, you'll need to authenticate with Landline using the single sign-on flow. Assuming that you SSO [set up on your server]({{ site.baseurl }}/quick-start.html#set-up-sso) and included `<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>` (which exposes the `io` global) somewhere on your page:
 
 ```javascript
-// This code means to present a simple example; it's not quite
+// This code is just a simple example; it's not quite
 // production-level code, nor is it meant to be. The methods we're
 // demonstrating, in order of execution:
 // - logInToLandline()

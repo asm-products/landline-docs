@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Landline Single Sign-On</title>
+  <meta name="description" content="Documentation and guides for Landline.io
+">
+
+  <link href="favicon.ico" rel="shortcut icon" type="image/x-icon">
+  <link href="http://d2v52k3cl9vedd.cloudfront.net/basscss/5.0.0/basscss.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="canonical" href="http://docs.landline.io/landline-sso.html">
+</head>
+
+  <body>
+    <div class="container">
+  <a href="/" class="p2 absolute">
+    <img src="https://d1015h9unskp4y.cloudfront.net/attachments/353037ca-3497-4abe-86ed-61b7843105e9/Landline_Icon_Colour.png" style="max-width: 36px" />
+  </a>
+</div>
+
+    <div class="container p4">
+  <div class="clearfix">
+    <div class="sm-col sm-col-3 sm-show">
+  <ul class="list-reset p2">
+    <li class="bold">
+      <a href="/quick-start.html">Quick Start</a>
+    </li>
+    <li>
+      <ul class="list-reset p1">
+        <li>
+          <a href="/quick-start.html#get-started">
+            Get started
+          </a>
+        </li>
+
+        <li>
+          <a href="/quick-start.html#set-up-sso">
+            Set up SSO
+          </a>
+        </li>
+
+        <li>
+          <a href="/quick-start.html#set-up-chat">
+            Set up chat
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <li class="bold">
+      <a href="/chat.html">Chat</a>
+    </li>
+    <li>
+      <ul class="list-reset p1">
+        <li>
+          <a href="/chat.html#mentions">
+            Mentions
+          </a>
+        </li>
+
+        <li>
+          <a href="/chat.html#emoji">
+            Emoji
+          </a>
+        </li>
+
+        <li>
+          <a href="/chat.html#formatting">
+            Formatting
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <li class="bold mb2">
+      <a href="/webhooks.html">Webhooks</a>
+    </li>
+
+    <li class="bold">
+      <a href="/api.html">API</a>
+    </li>
+    <li>
+      <ul class="list-reset p1">
+        <li>
+          <a href="/api-teams.html">
+            Teams
+          </a>
+        </li>
+
+        <li>
+          <a href="/api-users.html#users">
+            Users
+          </a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+
+    <div class="sm-col sm-col-9 px2">
+      <h1 class="landline-grey avenir h0 h0-responsive center mt0">Landline Single Sign-On</h1>
+      <div class="h3">
+        <p>Landline&#39;s single sign-on flow has borrowed heavily from <a href="https://meta.discourse.org/t/official-single-sign-on-for-discourse/13045">Discourse&#39;s implementation</a>, but we&#39;re a bit more opinionated about the contents of the <code>payload</code> hash. Let&#39;s quickly walk through the flow.</p>
+
+<p>(Note: This walkthrough assumes you&#39;ve already set up an account and shared secret on <a href="https://landline.io">landline.io</a>.)</p>
+
+<ol>
+<li><p>https://api.landline.io/sessions/new?team=${your<em>team</em>slug}</p>
+
+<p>To initialize a new session, make a call to <code>https://api.landline.io/sessions/new?team=${your_team_slug}</code>. You can include additional query string parameters if you&#39;d like; Landline will ignore them and pass them in its <code>payload</code> to your server. Note that a <code>room</code> parameter is viewed as significant by the Landline web client: it will initialize Landline chat, once your user has logged in, in the given room.</p>
+
+<p>Landline will respond with a <code>302 Found</code> redirect (provided your team exists) to your server&#39;s single sign-on endpoint. This redirect will contain a <code>payload</code> and a <code>sig</code> as query string parameters (in addition to the parameters that you provided).</p>
+
+<p>The <code>payload</code> is a Base64-encoded string containing a <code>nonce</code> and whatever parameters you provided in the initial call.</p>
+
+<p>The <code>nonce</code> is simply a string used to validate your server&#39;s response. It&#39;s valid for 10 minutes.</p>
+
+<p>The <code>sig</code> is a hex-encoded SHA256 HMAC of the <code>payload</code> signed with your shared secret.</p></li>
+<li><p>Your single sign-on endpoint</p>
+
+<p>When your server receives the single sign-on request, you should first validate your version of the signed payload matches the provided signature &mdash; this prevents unauthorized access to your endpoint. In Ruby on Rails, you might implement a function like:</p>
+<div class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">sso</span>
+  <span class="k">return</span> <span class="n">render</span> <span class="ss">nothing</span><span class="p">:</span> <span class="kp">true</span><span class="p">,</span> <span class="ss">status</span><span class="p">:</span> <span class="mi">401</span> <span class="k">unless</span> <span class="n">sign</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:payload</span><span class="o">]</span><span class="p">)</span> <span class="o">==</span> <span class="n">params</span><span class="o">[</span><span class="ss">:sig</span><span class="o">]</span>
+
+  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+<span class="k">end</span>
+
+<span class="k">def</span> <span class="nf">sign</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+  <span class="n">digest</span> <span class="o">=</span> <span class="no">OpenSSL</span><span class="o">::</span><span class="no">Digest</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;sha256&#39;</span><span class="p">)</span>
+  <span class="no">OpenSSL</span><span class="o">::</span><span class="no">HMAC</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">(</span><span class="n">digest</span><span class="p">,</span> <span class="s2">&quot;YOUR_LANDLINE_SECRET&quot;</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+<span class="k">end</span>
+</code></pre></div>
+<p>Next, you need to pull out the nonce. First, decode the payload into a hash of its params:</p>
+<div class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">decoded_payload</span> <span class="o">=</span> <span class="no">Base64</span><span class="o">.</span><span class="n">decode64</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:payload</span><span class="o">]</span><span class="p">)</span>
+<span class="n">payload_params</span> <span class="o">=</span> <span class="no">CGI</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">decoded_payload</span><span class="p">)</span>
+</code></pre></div>
+<p>Then grab the nonce:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">nonce = payload_params[&quot;nonce&quot;][0]
+</code></pre></div>
+<p>You&#39;ll also need to find a way to determine the current user. You might do this with fancy header logic (keep in mind that the redirects restrict your options here) or by generating a token for the current user when the request cycle kicks off and including it in the query string params in step 1 (above).</p>
+
+<p>Once you&#39;ve got your user, you&#39;ll want to create a new <code>payload</code> with the nonce and your user&#39;s data:</p>
+<div class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="c1"># `extract_user` is a placeholder for your implementation</span>
+<span class="n">current_user</span> <span class="o">=</span> <span class="n">extract_user</span>
+<span class="n">payload_user</span> <span class="o">=</span> <span class="no">Addressable</span><span class="o">::</span><span class="no">URI</span><span class="o">.</span><span class="n">new</span>
+<span class="n">payload_user</span><span class="o">.</span><span class="n">query_values</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="ss">nonce</span><span class="p">:</span> <span class="n">nonce</span><span class="p">,</span>
+  <span class="ss">team</span><span class="p">:</span> <span class="s2">&quot;YOUR LANDLINE TEAM&#39;S SLUG&quot;</span><span class="p">,</span>
+  <span class="nb">id</span><span class="p">:</span> <span class="n">current_user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+  <span class="ss">avatar_url</span><span class="p">:</span> <span class="n">current_user</span><span class="o">.</span><span class="n">avatar</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">to_s</span><span class="p">,</span>
+  <span class="ss">username</span><span class="p">:</span> <span class="n">current_user</span><span class="o">.</span><span class="n">username</span><span class="p">,</span>
+  <span class="ss">email</span><span class="p">:</span> <span class="n">current_user</span><span class="o">.</span><span class="n">email</span><span class="p">,</span>
+  <span class="ss">real_name</span><span class="p">:</span> <span class="n">current_user</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+  <span class="c1"># using a Rails url-helper; do what works best for you</span>
+  <span class="ss">profile_url</span><span class="p">:</span> <span class="n">user_url</span><span class="p">(</span><span class="n">current_user</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1"># Base64-encode the user query params</span>
+<span class="n">payload</span> <span class="o">=</span> <span class="no">Base64</span><span class="o">.</span><span class="n">encode64</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+
+<span class="c1"># You can use the same `sign` method implemented above</span>
+<span class="n">sig</span> <span class="o">=</span> <span class="n">sign</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+</code></pre></div>
+<p>Then put together your redirect URL:</p>
+<div class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://api.landline.io/sessions/sso?payload=</span><span class="si">#{</span><span class="no">URI</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span><span class="si">}</span><span class="s2">&amp;sig=</span><span class="si">#{</span><span class="n">sig</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+<p>And issue another <code>302</code> redirect:</p>
+<div class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">redirect_to</span> <span class="n">url</span>
+</code></pre></div></li>
+<li><p>https://api.landline.io/sessions/sso?payload=#{URI.escape(payload)}&amp;sig=#{sig}&quot;</p></li>
+</ol>
+
+<p>At this point, Landline logs in your user (creating a new user record if necessary), and responds with a <a href="http://jwt.io/">JSON Web Token</a> and its expiration:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">HTTP/1.1 200
+Content-Type: application/json
+
+{&quot;token&quot;: token, &quot;expiration&quot;: &quot;expiration&quot;}
+</code></pre></div>
+<p>And your user is ready to chat.</p>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+    <footer class="p2 bg-white border-top bottom-0 full-width center">
+  <p class="mb0">
+    <a href="http://landline.io/" class="bold landline-teal">Landline</a>
+    is being built with <span class="landline-red">&#10084;</span> on
+    <a href="http://assembly.com/landline" class="bold landline-yellow">
+      Assembly
+    </a>
+  </p>
+</footer>
+
+  </body>
+</html>
